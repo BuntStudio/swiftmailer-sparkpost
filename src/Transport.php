@@ -16,6 +16,7 @@ use Swift_Events_EventDispatcher;
 use Swift_Events_EventListener;
 use Swift_Events_SendEvent;
 use Swift_Mime_Message;
+use Swift_Mime_SimpleMessage;
 use Swift_Transport;
 use Swift_TransportException;
 
@@ -101,7 +102,7 @@ final class Transport implements Swift_Transport
     /**
      * {@inheritdoc}
      */
-    public function send(Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         $failedRecipients = (array) $failedRecipients;
 
@@ -216,5 +217,10 @@ final class Transport implements Swift_Transport
         }
 
         return $transportException;
+    }
+
+    public function ping()
+    {
+        return true;
     }
 }
