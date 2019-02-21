@@ -7,6 +7,7 @@
 namespace SwiftSparkPost;
 
 use Swift_Attachment;
+use Swift_Image;
 use Swift_Mime_Header;
 use Swift_Mime_Message;
 use Swift_MimePart;
@@ -193,6 +194,10 @@ final class StandardPayloadBuilder implements PayloadBuilder
             $content['attachments'] = $attachments;
         }
 
+        if ($inlineImages = $this->buildInlineImages($message)) {
+            $content['inline_images'] = $inlineImages;
+        }
+
         return $content;
     }
 
@@ -265,6 +270,28 @@ final class StandardPayloadBuilder implements PayloadBuilder
                 $attachments[] = [
                     'type' => $part->getContentType(),
                     'name' => $part->getFilename(),
+                    'data' => base64_encode($part->getBody()),
+                ];
+            }
+        }
+
+        return $attachments;
+    }
+
+    /**
+     * @param Swift_Mime_Message $message
+     *
+     * @return array
+     */
+    private function buildInlineImages(Swift_Mime_Message $message)
+    {
+        $attachments = [];
+
+        foreach ($message->getChildren() as $part) {
+            if ($part instanceof Swift_Image) {
+                $attachments[] = [
+                    'type' => $part->getContentType(),
+                    'name' => $part->getId(),
                     'data' => base64_encode($part->getBody()),
                 ];
             }
